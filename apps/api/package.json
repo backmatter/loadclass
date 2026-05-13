@@ -1,0 +1,37 @@
+{
+  "name": "@loadclass/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --env-file ../../.env --watch src/index.ts",
+    "start": "bun --env-file ../../.env src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.925.0",
+    "@aws-sdk/s3-request-presigner": "^3.925.0",
+    "@better-auth/api-key": "^1.6.10",
+    "@hono/zod-validator": "^0.4.3",
+    "@loadclass/db": "workspace:*",
+    "@loadclass/registry-contract": "workspace:*",
+    "@scalar/hono-api-reference": "^0.5.161",
+    "better-auth": "^1.6.10",
+    "drizzle-orm": "0.45.1",
+    "hono": "^4.7.11",
+    "hono-openapi": "^0.4.6",
+    "nanoid": "^5.1.5",
+    "nodemailer": "^8.0.7",
+    "pg": "^8.13.1",
+    "rate-limiter-flexible": "^11.1.0",
+    "semver": "^7.7.2",
+    "zod": "^3.25.63",
+    "zod-openapi": "^4.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.8",
+    "@types/nodemailer": "^8.0.0",
+    "@types/semver": "^7.7.0",
+    "typescript": "^5.7.2"
+  }
+}

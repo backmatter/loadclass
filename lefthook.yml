@@ -1,0 +1,4 @@
+commit-msg:
+  jobs:
+    - name: lint commit message
+      run: bun run commitlint --edit {1}

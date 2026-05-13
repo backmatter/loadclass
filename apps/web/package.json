@@ -1,0 +1,63 @@
+{
+  "name": "@loadclass/web",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "@/*": "./src/*"
+  },
+  "scripts": {
+    "dev": "bun --env-file ../../.env --bun vite dev --port 3001",
+    "build": "bun --env-file ../../.env --bun vite build",
+    "preview": "bun --env-file ../../.env --bun vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@base-ui/react": "^1.4.1",
+    "@better-auth/api-key": "^1.6.10",
+    "@fontsource/courier-prime": "^5.2.8",
+    "@fontsource/quattrocento": "^5.2.8",
+    "@fontsource/quattrocento-sans": "^5.2.8",
+    "@loadclass/registry-contract": "workspace:*",
+    "@tailwindcss/vite": "^4.1.18",
+    "@tanstack/react-devtools": "0.10.5",
+    "@tanstack/react-query": "5.100.14",
+    "@tanstack/react-query-devtools": "5.100.14",
+    "@tanstack/react-router": "1.170.10",
+    "@tanstack/react-router-devtools": "1.167.0",
+    "@tanstack/react-router-ssr-query": "1.167.1",
+    "@tanstack/react-start": "1.168.18",
+    "@tanstack/router-plugin": "1.168.13",
+    "better-auth": "^1.5.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.577.0",
+    "nitro": "npm:nitro-nightly@latest",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-intersection-observer": "^10.0.3",
+    "react-markdown": "^10.1.0",
+    "shadcn": "^4.7.0",
+    "sonner": "^2.0.7",
+    "tailwind-merge": "^3.0.2",
+    "tailwindcss": "^4.1.18",
+    "tw-animate-css": "^1.3.6",
+    "zod": "^4.4.3",
+    "zustand": "^5.0.13"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.16",
+    "@tanstack/devtools-vite": "0.7.0",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.0",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^6.0.1",
+    "jsdom": "^28.1.0",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.0",
+    "vitest": "^4.1.5"
+  }
+}

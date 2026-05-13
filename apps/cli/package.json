@@ -1,0 +1,19 @@
+{
+  "name": "@loadclass/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "loadclass": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@loadclass/registry-contract": "workspace:*",
+    "zod": "^3.25.63"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.8",
+    "typescript": "^5.7.2"
+  }
+}
