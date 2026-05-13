@@ -1,0 +1,227 @@
+services:
+  postgres:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: loadclass
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: loadclass
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U loadclass"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-loadclass}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD in .env}
+    volumes:
+      - minio_data:/data
+    ports:
+      - "${MINIO_API_PORT:-9010}:9000"
+      - "${MINIO_CONSOLE_PORT:-9011}:9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mailhog:
+    image: mailhog/mailhog
+    restart: unless-stopped
+    ports:
+      - "${MAILHOG_SMTP_PORT:-1025}:1025"   # SMTP
+      - "${MAILHOG_WEB_PORT:-8025}:8025"   # Web UI
+
+  minio-init:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-loadclass}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD in .env}
+      S3_BUCKET: ${S3_BUCKET:-loadclass}
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"
+        mc mb --ignore-existing "local/$$S3_BUCKET"
+    restart: "no"
+
+  migrate:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      LOADCLASS_RUNTIME_ENV: ${LOADCLASS_RUNTIME_ENV:-production}
+      DATABASE_URL: postgresql://loadclass:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@postgres:5432/loadclass
+    working_dir: /app
+    command: ["/bin/sh", "-c", "bun run db:migrate && bun run --cwd packages/db seed"]
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+      migrate:
+        condition: service_completed_successfully
+      preview-worker:
+        condition: service_healthy
+    environment:
+      LOADCLASS_RUNTIME_ENV: ${LOADCLASS_RUNTIME_ENV:-production}
+      DATABASE_URL: postgresql://loadclass:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@postgres:5432/loadclass
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: ${MINIO_ROOT_USER:-loadclass}
+      S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD in .env}
+      S3_BUCKET: ${S3_BUCKET:-loadclass}
+      REGISTRY_NAME: ${REGISTRY_NAME:-loadclass}
+      LOADCLASS_PUBLIC_API_URL: ${LOADCLASS_PUBLIC_API_URL:-http://localhost:8080}
+      UPSTREAM_REGISTRIES: ${UPSTREAM_REGISTRIES:-}
+      LOADCLASS_SITE_URL: ${LOADCLASS_SITE_URL:-http://localhost:3001}
+      TRUSTED_ORIGINS: ${TRUSTED_ORIGINS:-http://localhost:3001}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3001}
+      LOADCLASS_CITET_URL: ${LOADCLASS_CITET_URL:-}
+      LOADCLASS_AUTH_COOKIE_DOMAIN: ${LOADCLASS_AUTH_COOKIE_DOMAIN:-}
+      LOADCLASS_AUTH_PROVIDERS: ${LOADCLASS_AUTH_PROVIDERS:-}
+      LOADCLASS_EMAIL_PASSWORD_AUTH_ENABLED: ${LOADCLASS_EMAIL_PASSWORD_AUTH_ENABLED:-true}
+      LOADCLASS_GOOGLE_CLIENT_ID: ${LOADCLASS_GOOGLE_CLIENT_ID:-}
+      LOADCLASS_GOOGLE_CLIENT_SECRET: ${LOADCLASS_GOOGLE_CLIENT_SECRET:-}
+      LOADCLASS_GITHUB_CLIENT_ID: ${LOADCLASS_GITHUB_CLIENT_ID:-}
+      LOADCLASS_GITHUB_CLIENT_SECRET: ${LOADCLASS_GITHUB_CLIENT_SECRET:-}
+      ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-true}
+      ALLOW_PUBLISHING: ${ALLOW_PUBLISHING:-true}
+      MAX_ARCHIVE_BYTES: ${MAX_ARCHIVE_BYTES:-26214400}
+      MAX_PUBLISH_BODY_BYTES: ${MAX_PUBLISH_BODY_BYTES:-}
+      MAX_TEMPLATES_PER_USER: ${MAX_TEMPLATES_PER_USER:-5}
+      MAX_VERSIONS_PER_TEMPLATE: ${MAX_VERSIONS_PER_TEMPLATE:-10}
+      MAX_THUMBNAIL_BYTES: ${MAX_THUMBNAIL_BYTES:-3145728}
+      DOWNLOAD_IP_HASH_SALT: ${DOWNLOAD_IP_HASH_SALT:-}
+      RATE_LIMIT_STORE: ${RATE_LIMIT_STORE:-postgres}
+      TRUST_PROXY_HEADERS: ${TRUST_PROXY_HEADERS:-false}
+      RATE_LIMIT_AUTH_PER_MINUTE: ${RATE_LIMIT_AUTH_PER_MINUTE:-20}
+      RATE_LIMIT_API_PER_MINUTE: ${RATE_LIMIT_API_PER_MINUTE:-600}
+      RATE_LIMIT_MUTATION_PER_MINUTE: ${RATE_LIMIT_MUTATION_PER_MINUTE:-120}
+      RATE_LIMIT_DOWNLOAD_PER_MINUTE: ${RATE_LIMIT_DOWNLOAD_PER_MINUTE:-120}
+      RATE_LIMIT_PUBLISH_PER_HOUR: ${RATE_LIMIT_PUBLISH_PER_HOUR:-5}
+      RATE_LIMIT_PUBLISH_IP_PER_HOUR: ${RATE_LIMIT_PUBLISH_IP_PER_HOUR:-20}
+      TEMPLATE_PREVIEW_WORKER_URL: http://preview-worker:8090
+      TEMPLATE_PREVIEW_TIMEOUT_MS: ${TEMPLATE_PREVIEW_TIMEOUT_MS:-45000}
+      PREVIEW_WORKER_TOKEN: ${PREVIEW_WORKER_TOKEN:?set PREVIEW_WORKER_TOKEN in .env}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?set BETTER_AUTH_SECRET in .env}
+      LOADCLASS_SMTP_HOST: ${DOCKER_LOADCLASS_SMTP_HOST:-mailhog}
+      LOADCLASS_SMTP_PORT: ${LOADCLASS_SMTP_PORT:-1025}
+      LOADCLASS_SMTP_USER: ${LOADCLASS_SMTP_USER:-}
+      LOADCLASS_SMTP_PASS: ${LOADCLASS_SMTP_PASS:-}
+      LOADCLASS_EMAIL_FROM: ${LOADCLASS_EMAIL_FROM:-loadclass <noreply@example.invalid>}
+      PORT: 8080
+    networks:
+      - default
+      - preview
+    ports:
+      - "${API_PORT:-8080}:8080"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "bun -e \"fetch('http://127.0.0.1:8080/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\"",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  preview-worker:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile.preview
+    restart: unless-stopped
+    environment:
+      LOADCLASS_RUNTIME_ENV: ${LOADCLASS_RUNTIME_ENV:-production}
+      PREVIEW_WORKER_PORT: 8090
+      PREVIEW_WORKER_TOKEN: ${PREVIEW_WORKER_TOKEN:?set PREVIEW_WORKER_TOKEN in .env}
+      PREVIEW_WORKER_JOB_TIMEOUT_MS: ${PREVIEW_WORKER_JOB_TIMEOUT_MS:-30000}
+      PREVIEW_WORKER_COMMAND_TIMEOUT_MS: ${PREVIEW_WORKER_COMMAND_TIMEOUT_MS:-15000}
+      MAX_ARCHIVE_BYTES: ${MAX_ARCHIVE_BYTES:-26214400}
+      MAX_PREVIEW_REQUEST_BYTES: ${MAX_PREVIEW_REQUEST_BYTES:-40000000}
+      MAX_PREVIEW_EXTRACTED_BYTES: ${MAX_PREVIEW_EXTRACTED_BYTES:-83886080}
+      MAX_PREVIEW_FILES: ${MAX_PREVIEW_FILES:-300}
+      MAX_THUMBNAIL_BYTES: ${MAX_THUMBNAIL_BYTES:-3145728}
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=128m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 128
+    mem_limit: 768m
+    networks:
+      - preview
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "bun -e \"fetch('http://127.0.0.1:8090/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\"",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      LOADCLASS_PUBLIC_API_URL: ${LOADCLASS_PUBLIC_API_URL:-http://localhost:8080}
+      LOADCLASS_INTERNAL_API_URL: http://api:8080
+      LOADCLASS_SITE_URL: ${LOADCLASS_SITE_URL:-http://localhost:3001}
+      LOADCLASS_CITET_URL: ${LOADCLASS_CITET_URL:-}
+      LOADCLASS_AUTH_PROVIDERS: ${LOADCLASS_AUTH_PROVIDERS:-}
+      LOADCLASS_EMAIL_PASSWORD_AUTH_ENABLED: ${LOADCLASS_EMAIL_PASSWORD_AUTH_ENABLED:-true}
+    ports:
+      - "${WEB_PORT:-3001}:3000"
+
+  stats-worker:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    command: ["bun", "src/workers/stats.ts"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgresql://loadclass:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@postgres:5432/loadclass
+
+volumes:
+  postgres_data:
+  minio_data:
+
+networks:
+  preview:
+    internal: true

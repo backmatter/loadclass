@@ -1,0 +1,1 @@
+ALTER TABLE "templates" ADD CONSTRAINT "templates_owner_org_id_organization_id_fk" FOREIGN KEY ("owner_org_id") REFERENCES "public"."organization"("id") ON DELETE no action ON UPDATE no action;

@@ -1,0 +1,29 @@
+{
+  "name": "@loadclass/db",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema.ts"
+  },
+  "scripts": {
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate",
+    "studio": "drizzle-kit studio",
+    "seed": "bun run src/seed.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "drizzle-orm": "0.45.1",
+    "nanoid": "^5.1.5",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.8",
+    "@types/pg": "^8.15.5",
+    "dotenv": "^16.4.7",
+    "drizzle-kit": "^0.31.4",
+    "typescript": "^5.7.2"
+  }
+}
