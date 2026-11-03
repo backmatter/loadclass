@@ -1,0 +1,9 @@
+{
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "package-name": "loadclass",
+      "changelog-path": "CHANGELOG.md"
+    }
+  }
+}
