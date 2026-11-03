@@ -29,9 +29,7 @@ export function TemplateSummaryRow({
             </Badge>
           )}
         </div>
-        <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
-          {template.description}
-        </p>
+        <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{template.description}</p>
       </div>
       <div className="ml-4 flex shrink-0 flex-col items-end gap-1">
         <Badge variant="outline" className="font-mono text-[10px]">

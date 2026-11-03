@@ -15,8 +15,7 @@ export const Route = createFileRoute("/templates/$name")({
     ...pageMeta({
       title: `${loaderData?.title ?? "LaTeX Template"} - LaTeX Template | Loadclass`,
       description:
-        loaderData?.description ??
-        "Download and inspect this LaTeX template package on Loadclass.",
+        loaderData?.description ?? "Download and inspect this LaTeX template package on Loadclass.",
       path: loaderData ? templateWebPath(loaderData.name) : "/templates",
       image: loaderData?.thumbnailUrl,
       type: "article",

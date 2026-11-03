@@ -33,11 +33,7 @@ export async function fetchUpstreamTemplateDetail(
   const settings = await getRegistrySettings();
 
   for (const upstream of settings.upstreamRegistries) {
-    const detail = await fetchJson(
-      upstream,
-      templateDetailPath(templateName),
-      TemplateDetail,
-    );
+    const detail = await fetchJson(upstream, templateDetailPath(templateName), TemplateDetail);
     if (detail) {
       return {
         ...detail,

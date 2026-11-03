@@ -26,11 +26,13 @@ function expandParameter(param: Parameter, spec: OpenAPISpec): Parameter[] {
         propertySchema,
       }));
     }) ?? [];
-  const directProperties = Object.entries(resolved.properties ?? {}).map(([name, propertySchema]) => ({
-    name,
-    schema: resolved,
-    propertySchema,
-  }));
+  const directProperties = Object.entries(resolved.properties ?? {}).map(
+    ([name, propertySchema]) => ({
+      name,
+      schema: resolved,
+      propertySchema,
+    }),
+  );
   const properties = [...allOfProperties, ...directProperties];
 
   if (properties.length === 0) return [param];
@@ -86,7 +88,9 @@ export function exampleFromSchema(
     );
   }
 
-  const type = Array.isArray(schema.type) ? schema.type.find((value) => value !== "null") : schema.type;
+  const type = Array.isArray(schema.type)
+    ? schema.type.find((value) => value !== "null")
+    : schema.type;
 
   if (type === "array") return [exampleFromSchema(schema.items, spec, options, seen)];
   if (type === "object" || schema.properties) {

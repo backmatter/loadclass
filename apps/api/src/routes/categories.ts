@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { describeRoute } from "hono-openapi";
-import { resolver } from "hono-openapi/zod";
+import { resolver } from "hono-openapi";
 import { listCategorySummaries } from "../registry/template-read-model.ts";
 import { Category } from "../schemas.ts";
 

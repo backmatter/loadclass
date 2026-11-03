@@ -1,11 +1,7 @@
 import type { Context, MiddlewareHandler } from "hono";
-import { getConnInfo } from "hono/bun";
+import { getConnInfo } from "@hono/node-server/conninfo";
 import { pool } from "@loadclass/db";
-import {
-  RateLimiterMemory,
-  RateLimiterPostgres,
-  RateLimiterRes,
-} from "rate-limiter-flexible";
+import { RateLimiterMemory, RateLimiterPostgres, RateLimiterRes } from "rate-limiter-flexible";
 
 const ONE_MINUTE_MS = 60_000;
 const ONE_HOUR_MS = 60 * ONE_MINUTE_MS;
@@ -168,9 +164,7 @@ function setRateLimitHeaders(c: Context, limit: number, result: RateLimiterRes) 
 
 function rateLimitedBody(limitName: string, result: RateLimiterRes) {
   const resetTime = resetTimeFrom(result);
-  const detail = resetTime
-    ? `Try again after ${resetTime.toISOString()}.`
-    : "Try again later.";
+  const detail = resetTime ? `Try again after ${resetTime.toISOString()}.` : "Try again later.";
 
   return {
     error: "Too many requests.",

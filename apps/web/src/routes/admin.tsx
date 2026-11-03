@@ -20,7 +20,8 @@ import { privatePageMeta } from "@/lib/site-metadata";
 import { runtimeConfigFromContext, useRuntimeConfig } from "@/lib/runtime-config";
 
 export const Route = createFileRoute("/admin")({
-  beforeLoad: ({ context }) => requireAdminSession(context.queryClient, runtimeConfigFromContext(context)),
+  beforeLoad: ({ context }) =>
+    requireAdminSession(context.queryClient, runtimeConfigFromContext(context)),
   head: () => privatePageMeta("Admin - Loadclass", "/admin"),
   component: AdminPage,
 });

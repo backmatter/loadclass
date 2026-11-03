@@ -15,9 +15,11 @@ export interface RuntimeRouteContext {
 
 function processEnv(): Record<string, string | undefined> {
   return (
-    (globalThis as typeof globalThis & {
-      process?: { env?: Record<string, string | undefined> };
-    }).process?.env ?? {}
+    (
+      globalThis as typeof globalThis & {
+        process?: { env?: Record<string, string | undefined> };
+      }
+    ).process?.env ?? {}
   );
 }
 
@@ -83,10 +85,7 @@ export function requestApiUrl(config: Pick<RuntimePublicConfig, "apiUrl">): stri
   return typeof window === "undefined" ? internalApiUrl() : config.apiUrl;
 }
 
-export function publicAssetUrl(
-  config: Pick<RuntimePublicConfig, "apiUrl">,
-  path: string,
-): string {
+export function publicAssetUrl(config: Pick<RuntimePublicConfig, "apiUrl">, path: string): string {
   if (/^https?:\/\//i.test(path)) return path;
   return `${config.apiUrl}${path.startsWith("/") ? path : `/${path}`}`;
 }

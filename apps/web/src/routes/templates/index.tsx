@@ -7,13 +7,7 @@ import { z } from "zod";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardAction, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Empty, EmptyContent, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import {
@@ -112,15 +106,8 @@ function TemplatesBrowsePage() {
   const navigate = Route.useNavigate();
   const runtimeConfig = useRuntimeConfig();
   const { data: categoryList } = useSuspenseQuery(categoriesQuery(runtimeConfig));
-  const {
-    data,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetching,
-    isFetchingNextPage,
-    status,
-  } = useInfiniteQuery(templatesInfiniteQuery(runtimeConfig, search));
+  const { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } =
+    useInfiniteQuery(templatesInfiniteQuery(runtimeConfig, search));
 
   const { ref: sentinelRef } = useInView({
     rootMargin: "300px",

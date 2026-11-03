@@ -38,8 +38,8 @@ services:
     image: mailhog/mailhog
     restart: unless-stopped
     ports:
-      - "${MAILHOG_SMTP_PORT:-1025}:1025"   # SMTP
-      - "${MAILHOG_WEB_PORT:-8025}:8025"   # Web UI
+      - "${MAILHOG_SMTP_PORT:-1025}:1025" # SMTP
+      - "${MAILHOG_WEB_PORT:-8025}:8025" # Web UI
 
   minio-init:
     image: minio/mc
@@ -70,7 +70,7 @@ services:
       LOADCLASS_RUNTIME_ENV: ${LOADCLASS_RUNTIME_ENV:-production}
       DATABASE_URL: postgresql://loadclass:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@postgres:5432/loadclass
     working_dir: /app
-    command: ["/bin/sh", "-c", "bun run db:migrate && bun run --cwd packages/db seed"]
+    command: ["/bin/sh", "-c", "pnpm --dir packages/db migrate && pnpm --dir packages/db seed"]
     restart: "no"
 
   api:
@@ -143,7 +143,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "bun -e \"fetch('http://127.0.0.1:8080/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\"",
+          'node -e "fetch(''http://127.0.0.1:8080/health'').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"',
         ]
       interval: 10s
       timeout: 5s
@@ -180,7 +180,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "bun -e \"fetch('http://127.0.0.1:8090/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\"",
+          'node -e "fetch(''http://127.0.0.1:8090/healthz'').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"',
         ]
       interval: 10s
       timeout: 5s
@@ -209,7 +209,7 @@ services:
       context: .
       dockerfile: apps/api/Dockerfile
     restart: unless-stopped
-    command: ["bun", "src/workers/stats.ts"]
+    command: ["node", "src/workers/stats.ts"]
     depends_on:
       postgres:
         condition: service_healthy

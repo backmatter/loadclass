@@ -43,6 +43,7 @@ export const session = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     activeOrganizationId: text("active_organization_id"),
+    impersonatedBy: text("impersonated_by"),
   },
   (table) => [index("session_userId_idx").on(table.userId)],
 );
@@ -95,9 +96,9 @@ export const apikey = pgTable(
     start: text("start"),
     prefix: text("prefix"),
     key: text("key").notNull(),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
+    // better-auth 1.7: keys belong to a reference (a user or an organization).
+    configId: text("config_id").default("default").notNull(),
+    referenceId: text("reference_id").notNull(),
     refillInterval: integer("refill_interval"),
     refillAmount: integer("refill_amount"),
     lastRefillAt: timestamp("last_refill_at"),
@@ -116,7 +117,7 @@ export const apikey = pgTable(
   },
   (table) => [
     index("apikey_key_idx").on(table.key),
-    index("apikey_userId_idx").on(table.userId),
+    index("apikey_referenceId_idx").on(table.referenceId),
   ],
 );
 
@@ -200,7 +201,7 @@ export const accountRelations = relations(account, ({ one }) => ({
 
 export const apikeyRelations = relations(apikey, ({ one }) => ({
   user: one(user, {
-    fields: [apikey.userId],
+    fields: [apikey.referenceId],
     references: [user.id],
   }),
 }));

@@ -46,22 +46,24 @@ interface PreviewRequestPayload {
 }
 
 class PreviewError extends Error {
-  constructor(
-    message: string,
-    readonly status = 400,
-    readonly code = "preview_error",
-  ) {
+  readonly status: number;
+  readonly code: string;
+
+  constructor(message: string, status = 400, code = "preview_error") {
     super(message);
+    this.status = status;
+    this.code = code;
   }
 }
 
 class PreviewCommandError extends PreviewError {
-  constructor(
-    readonly command: string,
-    message: string,
-    readonly output: string,
-  ) {
+  readonly command: string;
+  readonly output: string;
+
+  constructor(command: string, message: string, output: string) {
     super(message, 422, `${command}_failed`);
+    this.command = command;
+    this.output = output;
   }
 }
 
@@ -262,9 +264,7 @@ async function latexEngines(manifest: TemplateManifest, mainPath: string): Promi
 
   const source = await readFile(mainPath, "utf8").catch(() => "");
   const hintedEngine = sourceEngineHint(source);
-  if (hintedEngine) {
-    return [...new Set<LatexEngine>([hintedEngine, "pdflatex"])];
-  }
+  if (hintedEngine) return [hintedEngine];
 
   return ["pdflatex"];
 }
@@ -290,7 +290,16 @@ async function runCommand(
   cwd: string,
   env: NodeJS.ProcessEnv,
 ): Promise<void> {
-  await new Promise<void>((resolvePromise, reject) => {
+  await runCommandOutput(command, args, cwd, env);
+}
+
+async function runCommandOutput(
+  command: string,
+  args: string[],
+  cwd: string,
+  env: NodeJS.ProcessEnv,
+): Promise<string> {
+  return new Promise<string>((resolvePromise, reject) => {
     const child = spawn(command, args, {
       cwd,
       env,
@@ -307,7 +316,11 @@ async function runCommand(
     child.once("error", (error) => {
       clearTimeout(timeout);
       reject(
-        new PreviewError(`${command} could not start: ${error.message}`, 500, "command_unavailable"),
+        new PreviewError(
+          `${command} could not start: ${error.message}`,
+          500,
+          "command_unavailable",
+        ),
       );
     });
 
@@ -319,17 +332,18 @@ async function runCommand(
             reject(new PreviewError(`${command} timed out`, 422, `${command}_timeout`));
             return;
           }
+          const combinedOutput = `${stdout}\n${stderr}`.slice(0, LOG_LIMIT_BYTES);
           if (code !== 0) {
             reject(
               new PreviewCommandError(
                 command,
                 `${command} failed with exit code ${code}`,
-                `${stdout}\n${stderr}`.slice(0, LOG_LIMIT_BYTES),
+                combinedOutput,
               ),
             );
             return;
           }
-          resolvePromise();
+          resolvePromise(combinedOutput);
         })
         .catch(reject);
     });
@@ -372,7 +386,7 @@ async function renderPreview(manifest: TemplateManifest, root: string): Promise<
     }
   }
 
-  for (const pdfPath of await findPackagedPdfs(root, manifest)) {
+  for (const pdfPath of await findPackagedPdfs(root, manifest, env)) {
     try {
       return await renderPdfToPng(root, buildDir, env, pdfPath);
     } catch (error) {
@@ -449,7 +463,10 @@ function outputMatch(output: string, pattern: RegExp): string | undefined {
 
 function classifyCommandFailure(error: PreviewCommandError): PublicPreviewIssue {
   const output = error.output;
-  const missingStyle = outputMatch(output, /(?:File|LaTeX Error: File) [`']([^`']+\.sty)'? not found/i);
+  const missingStyle = outputMatch(
+    output,
+    /(?:File|LaTeX Error: File) [`']([^`']+\.sty)'? not found/i,
+  );
   if (missingStyle) {
     return {
       code: "missing_latex_package",
@@ -458,7 +475,10 @@ function classifyCommandFailure(error: PreviewCommandError): PublicPreviewIssue 
     };
   }
 
-  const missingClass = outputMatch(output, /(?:File|LaTeX Error: File) [`']([^`']+\.cls)'? not found/i);
+  const missingClass = outputMatch(
+    output,
+    /(?:File|LaTeX Error: File) [`']([^`']+\.cls)'? not found/i,
+  );
   if (missingClass) {
     return {
       code: "missing_latex_class",
@@ -467,7 +487,10 @@ function classifyCommandFailure(error: PreviewCommandError): PublicPreviewIssue 
     };
   }
 
-  const babelLanguage = outputMatch(output, /Package babel Error: Unknown option [`']?([^`'.\n]+)[`']?/i);
+  const babelLanguage = outputMatch(
+    output,
+    /Package babel Error: Unknown option [`']?([^`'.\n]+)[`']?/i,
+  );
   if (babelLanguage) {
     return {
       code: "missing_latex_language",
@@ -591,10 +614,10 @@ async function createMissingStyleAlias(
   if (!destination.startsWith(rootWithSeparator)) return false;
   if (await readableFile(destination)) return false;
 
-  const localStyles = (await readdir(mainDir)).filter((file) => file.toLowerCase().endsWith(".sty"));
-  const sameFamilyStyles = localStyles.filter(
-    (file) => styleFamily(file) === styleFamily(missing),
+  const localStyles = (await readdir(mainDir)).filter((file) =>
+    file.toLowerCase().endsWith(".sty"),
   );
+  const sameFamilyStyles = localStyles.filter((file) => styleFamily(file) === styleFamily(missing));
   if (sameFamilyStyles.length !== 1) return false;
 
   await copyFile(resolve(mainDir, sameFamilyStyles[0]!), destination);
@@ -658,26 +681,102 @@ async function readableNonEmptyFile(path: string): Promise<boolean> {
   }
 }
 
-async function findPackagedPdfs(root: string, manifest: TemplateManifest): Promise<string[]> {
-  const candidates: string[] = [];
-  const mainPdf = manifest.main.replace(/\.tex$/i, ".pdf");
-  if (mainPdf !== manifest.main) {
-    candidates.push(mainPdf);
+interface PackagedPdfCandidate {
+  file: string;
+  requireDocumentPage: boolean;
+}
+
+function pdfStem(path: string): string {
+  return (path.split("/").pop() ?? path)
+    .replace(/\.pdf$/i, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "");
+}
+
+function mainPdfStem(path: string): string {
+  return (path.split("/").pop() ?? path)
+    .replace(/\.[^.]+$/i, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "");
+}
+
+function isMainRelatedPdf(file: string, manifest: TemplateManifest): boolean {
+  const candidateStem = pdfStem(file);
+  const mainStem = mainPdfStem(manifest.main);
+  return (
+    candidateStem === mainStem ||
+    candidateStem.endsWith(mainStem) ||
+    (mainStem.length >= 6 && candidateStem.includes(mainStem))
+  );
+}
+
+function isLikelyEmbeddedAssetPdf(file: string): boolean {
+  const basename = file.split("/").pop()?.toLowerCase() ?? file.toLowerCase();
+  return /(?:^|[-_\s])(?:badge|cc[-_\s]?by|checklist|copyright|crossmark|doi|fig|figure|footer|form|header|icon|image|license|logo|logos|manual|masthead|orcid|readme|stamp)(?:[-_\s.]|$)/i.test(
+    basename,
+  );
+}
+
+async function isDocumentSizedPdf(
+  root: string,
+  env: NodeJS.ProcessEnv,
+  pdfPath: string,
+): Promise<boolean> {
+  try {
+    const output = await runCommandOutput("pdfinfo", ["-f", "1", "-l", "1", pdfPath], root, env);
+    const match = output.match(/Page(?:\s+1)?\s+size:\s+([0-9.]+)\s+x\s+([0-9.]+)\s+pts/i);
+    if (!match) return false;
+    const width = Number.parseFloat(match[1] ?? "");
+    const height = Number.parseFloat(match[2] ?? "");
+    if (!Number.isFinite(width) || !Number.isFinite(height)) return false;
+
+    const shortSide = Math.min(width, height);
+    const longSide = Math.max(width, height);
+    return shortSide >= 200 && longSide >= 300;
+  } catch {
+    return false;
+  }
+}
+
+async function findPackagedPdfs(
+  root: string,
+  manifest: TemplateManifest,
+  env: NodeJS.ProcessEnv,
+): Promise<string[]> {
+  const candidates: PackagedPdfCandidate[] = [];
+  const mainPdf = manifest.main.toLowerCase().endsWith(".pdf")
+    ? manifest.main
+    : manifest.main.replace(/\.tex$/i, ".pdf");
+  if (mainPdf !== manifest.main || manifest.main.toLowerCase().endsWith(".pdf")) {
+    candidates.push({ file: mainPdf, requireDocumentPage: false });
   }
 
   const mainBase = mainPdf.split("/").pop()?.toLowerCase();
   const pdfFiles = manifest.files.filter((file) => file.toLowerCase().endsWith(".pdf"));
   if (mainBase) {
     const sameName = pdfFiles.find((file) => file.split("/").pop()?.toLowerCase() === mainBase);
-    if (sameName) candidates.push(sameName);
+    if (sameName) candidates.push({ file: sameName, requireDocumentPage: false });
   }
-  candidates.push(...pdfFiles);
+  for (const file of pdfFiles) {
+    if (isMainRelatedPdf(file, manifest)) {
+      candidates.push({ file, requireDocumentPage: true });
+    }
+  }
+  for (const file of pdfFiles) {
+    if (!isLikelyEmbeddedAssetPdf(file)) {
+      candidates.push({ file, requireDocumentPage: true });
+    }
+  }
 
-  const orderedUniqueCandidates = [...new Set(candidates)];
+  const orderedUniqueCandidates = [
+    ...new Map(candidates.map((candidate) => [candidate.file, candidate])).values(),
+  ];
   const paths: string[] = [];
-  for (const file of orderedUniqueCandidates) {
+  for (const { file, requireDocumentPage } of orderedUniqueCandidates) {
     const candidate = safeDestination(root, file);
-    if (await readableNonEmptyFile(candidate)) paths.push(candidate);
+    if (!(await readableNonEmptyFile(candidate))) continue;
+    if (requireDocumentPage && !(await isDocumentSizedPdf(root, env, candidate))) continue;
+    paths.push(candidate);
   }
   return paths;
 }

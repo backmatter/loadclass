@@ -21,7 +21,11 @@ export function BrandLogo({ variant = "mark", className, imgClassName }: BrandLo
   const sources = logoSources[variant];
 
   return (
-    <span className={cn("inline-flex items-center", className)} role="img" aria-label="\\loadclass{}">
+    <span
+      className={cn("inline-flex items-center", className)}
+      role="img"
+      aria-label="\\loadclass{}"
+    >
       <img src={sources.lightTheme} alt="" className={cn("block dark:hidden", imgClassName)} />
       <img src={sources.darkTheme} alt="" className={cn("hidden dark:block", imgClassName)} />
     </span>

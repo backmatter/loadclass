@@ -1,4 +1,4 @@
-import { resolver } from "hono-openapi/zod";
+import { resolver } from "hono-openapi";
 import { ErrorResponse } from "./schemas.ts";
 
 export const authSecurity = [{ bearerAuth: [] }, { cookieAuth: [] }];

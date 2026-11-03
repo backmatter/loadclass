@@ -182,9 +182,7 @@ function DocsPage() {
             <Select value={selectedValue} onValueChange={selectOperation}>
               <SelectTrigger className="h-auto min-h-8 w-full py-2">
                 <SelectValue>
-                  {selected
-                    ? `${selected.method.toUpperCase()} ${selected.path}`
-                    : "API overview"}
+                  {selected ? `${selected.method.toUpperCase()} ${selected.path}` : "API overview"}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent align="start" alignItemWithTrigger={false} className="max-w-[92vw]">

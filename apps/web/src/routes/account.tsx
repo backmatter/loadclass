@@ -6,7 +6,8 @@ import { privatePageMeta } from "@/lib/site-metadata";
 import { runtimeConfigFromContext } from "@/lib/runtime-config";
 
 export const Route = createFileRoute("/account")({
-  beforeLoad: ({ context }) => requireRouteSession(context.queryClient, runtimeConfigFromContext(context)),
+  beforeLoad: ({ context }) =>
+    requireRouteSession(context.queryClient, runtimeConfigFromContext(context)),
   head: () => privatePageMeta("Account - Loadclass", "/account"),
   component: AccountPage,
 });

@@ -334,10 +334,7 @@ function OwnerActions() {
             </div>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                variant="destructive"
-                onClick={() => deprecateMutation.mutate()}
-              >
+              <AlertDialogAction variant="destructive" onClick={() => deprecateMutation.mutate()}>
                 Deprecate
               </AlertDialogAction>
             </AlertDialogFooter>

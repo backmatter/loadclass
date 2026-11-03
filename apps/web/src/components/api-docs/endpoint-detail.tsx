@@ -229,9 +229,7 @@ export function EndpointDetail({ spec, op, apiUrl }: Props) {
       <div>
         <div className="flex min-w-0 flex-wrap items-center gap-2">
           <MethodBadge method={method} />
-          <code className="min-w-0 break-all font-mono text-sm font-medium sm:text-lg">
-            {path}
-          </code>
+          <code className="min-w-0 break-all font-mono text-sm font-medium sm:text-lg">{path}</code>
           <Badge variant={requiresAuth ? "outline" : "secondary"}>
             {requiresAuth ? "Auth required" : "Public"}
           </Badge>

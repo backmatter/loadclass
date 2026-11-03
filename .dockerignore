@@ -1,9 +1,7 @@
 .git
-node_modules
-apps/web/.output
-apps/web/node_modules
-apps/api/node_modules
-packages/db/node_modules
+**/node_modules
+**/.output
+.vite-hooks
 overleaf-import
 *.log
 .env

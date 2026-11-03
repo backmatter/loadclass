@@ -97,7 +97,9 @@ export function validateTemplateManifest(manifestJson: unknown): TemplateManifes
     throw new Error("manifest.name must be a lowercase slug, optionally scoped as @org/template");
   }
 
-  const manifestFiles = parsed.data.files.map((path) => normalizeTemplatePackagePath(path, "manifest"));
+  const manifestFiles = parsed.data.files.map((path) =>
+    normalizeTemplatePackagePath(path, "manifest"),
+  );
   const main = normalizeTemplatePackagePath(parsed.data.main, "manifest");
   if (!manifestFiles.includes(main)) {
     throw new Error("manifest.main must be listed in manifest.files");

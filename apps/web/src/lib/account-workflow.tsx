@@ -2,12 +2,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useMutation, useQueryClient, type UseMutationResult } from "@tanstack/react-query";
 import { createContext, useContext, type ReactNode } from "react";
 import { useAuthClient } from "./auth-client";
-import {
-  apiKeysQuery,
-  fullOrganizationQuery,
-  myTemplatesQuery,
-  organizationsQuery,
-} from "./api";
+import { apiKeysQuery, fullOrganizationQuery, myTemplatesQuery, organizationsQuery } from "./api";
 import { useRuntimeConfig } from "./runtime-config";
 import { useAccountUiStore } from "./ui-store";
 
@@ -124,18 +119,14 @@ const AccountWorkflowContext = createContext<AccountWorkflow | null>(null);
 export function AccountWorkflowProvider({ children }: { children: ReactNode }) {
   const workflow = useAccountWorkflow();
   return (
-    <AccountWorkflowContext.Provider value={workflow}>
-      {children}
-    </AccountWorkflowContext.Provider>
+    <AccountWorkflowContext.Provider value={workflow}>{children}</AccountWorkflowContext.Provider>
   );
 }
 
 export function useAccountWorkflowContext(): AccountWorkflow {
   const ctx = useContext(AccountWorkflowContext);
   if (!ctx) {
-    throw new Error(
-      "useAccountWorkflowContext must be used inside <AccountWorkflowProvider>",
-    );
+    throw new Error("useAccountWorkflowContext must be used inside <AccountWorkflowProvider>");
   }
   return ctx;
 }

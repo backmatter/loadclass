@@ -8,7 +8,9 @@ import { runtimeConfigFromContext, useRuntimeConfig } from "@/lib/runtime-config
 
 export const Route = createFileRoute("/users/$id")({
   loader: ({ context, params }) =>
-    context.queryClient.ensureQueryData(userProfileQuery(runtimeConfigFromContext(context), params.id)),
+    context.queryClient.ensureQueryData(
+      userProfileQuery(runtimeConfigFromContext(context), params.id),
+    ),
   head: ({ loaderData, params }) =>
     pageMeta({
       title: `${loaderData?.name ?? "User"} - Loadclass`,

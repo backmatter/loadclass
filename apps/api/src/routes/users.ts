@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { describeRoute } from "hono-openapi";
-import { resolver } from "hono-openapi/zod";
+import { resolver } from "hono-openapi";
 import { getUserProfile } from "../registry/template-read-model.ts";
 import { registryErrorResponse } from "./respond.ts";
 import { UserProfile } from "../schemas.ts";

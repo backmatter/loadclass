@@ -69,8 +69,7 @@ export function describeEndpointRequest({
     headerParams: parameters.filter((p) => p.in === "header"),
     bodyKind,
     fields,
-    initialBody:
-      bodyKind === "json" ? schemaExampleJson(requestBodyMedia?.schema, spec) : "",
+    initialBody: bodyKind === "json" ? schemaExampleJson(requestBodyMedia?.schema, spec) : "",
     initialMultipartValues: Object.fromEntries(
       fields
         .filter((field) => !field.binary)
@@ -96,7 +95,12 @@ export function buildEndpointRequest({
   requestBodyContentType?: string;
   inputs: EndpointRequestInputs;
 }): EndpointRequest {
-  const url = buildUrl({ apiUrl, path, pathValues: inputs.pathValues, queryValues: inputs.queryValues });
+  const url = buildUrl({
+    apiUrl,
+    path,
+    pathValues: inputs.pathValues,
+    queryValues: inputs.queryValues,
+  });
   const urlString = url.toString();
 
   const displayHeaders = composeHeaders({
@@ -294,9 +298,7 @@ function shellQuote(value: string) {
 }
 
 function headerLines(headers: Record<string, string>) {
-  return Object.entries(headers).map(
-    ([key, value]) => `  -H ${shellQuote(`${key}: ${value}`)}`,
-  );
+  return Object.entries(headers).map(([key, value]) => `  -H ${shellQuote(`${key}: ${value}`)}`);
 }
 
 function fetchSnippet({

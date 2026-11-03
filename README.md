@@ -7,18 +7,18 @@ Self-hostable LaTeX template registry.
 - Browse, search, star, and download LaTeX templates
 - Publish versioned template archives with API keys
 - Store archives in S3-compatible storage such as MinIO or HiDrive S3
-- Use PostgreSQL, Better Auth, Hono, TanStack Start, and Bun
+- Use PostgreSQL, Better Auth, Hono, TanStack Start, and Node.js
 - Expose OpenAPI at `/openapi.json` and API docs at `/docs`
 
 ## Local Development
 
 Requirements:
 
-- Bun 1.3+
+- Node.js 26 and [Vite+](https://viteplus.dev) (`vp`; it installs pnpm)
 - Docker + Docker Compose
 
 ```bash
-bun install
+vp install
 cp .env.example .env
 ```
 
@@ -29,18 +29,18 @@ Start dependencies:
 
 ```bash
 docker compose up postgres minio minio-init -d
-bun db:migrate
-bun run --cwd packages/db src/seed.ts
+vp run db:migrate
+vp run @loadclass/db#seed
 ```
 
 Run API and web in separate terminals:
 
 ```bash
-bun dev:api
+vp run dev:api
 ```
 
 ```bash
-bun dev
+vp run dev
 ```
 
 Open:

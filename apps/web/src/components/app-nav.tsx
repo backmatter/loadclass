@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { GithubIcon } from "lucide-react";
+import { GithubIcon } from "@/components/github-icon";
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/brand-logo";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -66,9 +66,7 @@ export function AppNav({ activePath }: { activePath?: string }) {
                   size="icon"
                   aria-label="Open GitHub repository"
                   nativeButton={false}
-                  render={
-                    <a href={GITHUB_REPO_URL} target="_blank" rel="noreferrer" />
-                  }
+                  render={<a href={GITHUB_REPO_URL} target="_blank" rel="noreferrer" />}
                 />
               }
             >

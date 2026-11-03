@@ -125,7 +125,9 @@ export function assertApiRuntimeConfig({ corsOrigins }: { corsOrigins: string[] 
   }
 
   if (corsOrigins.length === 0) {
-    errors.push("CORS_ORIGINS or LOADCLASS_SITE_URL must define at least one allowed browser origin");
+    errors.push(
+      "CORS_ORIGINS or LOADCLASS_SITE_URL must define at least one allowed browser origin",
+    );
   }
 
   if (configuredFlag("ALLOW_PUBLISHING") !== false) {

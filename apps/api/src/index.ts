@@ -1,9 +1,10 @@
 import "./types.ts";
 process.title = "loadclass-api";
+import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
-import { openAPISpecs } from "hono-openapi";
+import { openAPIRouteHandler } from "hono-openapi";
 import { apiReference } from "@scalar/hono-api-reference";
 import { db } from "@loadclass/db";
 import { sql } from "drizzle-orm";
@@ -14,7 +15,7 @@ import { categoriesRouter } from "./routes/categories.ts";
 import { adminRouter } from "./routes/admin.ts";
 import { usersRouter } from "./routes/users.ts";
 import { orgsRouter } from "./routes/orgs.ts";
-import { resolver } from "hono-openapi/zod";
+import { resolver } from "hono-openapi";
 import { RegistryInfo } from "./schemas.ts";
 import { describeRoute } from "hono-openapi";
 import { getRegistrySettings, isRegistrationAllowed } from "./registry/config.ts";
@@ -110,16 +111,14 @@ app.get("/health", async (c) => {
 // Auto-generated OpenAPI spec
 app.get(
   "/openapi.json",
-  openAPISpecs(app, {
+  openAPIRouteHandler(app, {
     documentation: {
       info: {
         title: "loadclass registry API",
         version: "1.0.0",
         description: "Self-hostable LaTeX template registry.",
       },
-      servers: [
-        { url: process.env.LOADCLASS_PUBLIC_API_URL!, description: "This instance" },
-      ],
+      servers: [{ url: process.env.LOADCLASS_PUBLIC_API_URL!, description: "This instance" }],
       tags: [
         { name: "Templates", description: "Browse, inspect, star, and discover templates." },
         {
@@ -165,4 +164,6 @@ ensureStorageBucket().catch((error) => {
 });
 
 const PORT = Number.parseInt(process.env.PORT ?? "8080", 10);
-export default { fetch: app.fetch, port: PORT };
+serve({ fetch: app.fetch, port: PORT }, (info) => {
+  console.log(`[api] listening on port ${info.port}`);
+});

@@ -47,7 +47,9 @@ async function setLatestVersion(
     return;
   }
 
-  await store.delete(distTags).where(and(eq(distTags.templateId, templateId), eq(distTags.tag, "latest")));
+  await store
+    .delete(distTags)
+    .where(and(eq(distTags.templateId, templateId), eq(distTags.tag, "latest")));
 }
 
 export async function recordPublishedVersion(

@@ -73,7 +73,7 @@ export const TemplateDetail = TemplateSummary.extend({
   isStarred: z.boolean(),
   canManage: z.boolean(),
   versions: z.array(VersionSummary),
-  distTags: z.record(z.string()),
+  distTags: z.record(z.string(), z.string()),
 });
 
 export const ListTemplatesResponse = z.object({

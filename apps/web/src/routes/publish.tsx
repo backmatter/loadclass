@@ -24,7 +24,8 @@ import {
 } from "@/lib/template-publish-workflow";
 
 export const Route = createFileRoute("/publish")({
-  beforeLoad: ({ context }) => requireRouteSession(context.queryClient, runtimeConfigFromContext(context)),
+  beforeLoad: ({ context }) =>
+    requireRouteSession(context.queryClient, runtimeConfigFromContext(context)),
   head: () => privatePageMeta("Publish - Loadclass", "/publish"),
   component: PublishPage,
 });

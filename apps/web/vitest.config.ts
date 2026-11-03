@@ -1,4 +1,4 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig } from "vite-plus";
 import { fileURLToPath, URL } from "node:url";
 import viteReact from "@vitejs/plugin-react";
 

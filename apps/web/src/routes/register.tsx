@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { GithubIcon } from "lucide-react";
+import { GithubIcon } from "@/components/github-icon";
 import { useState } from "react";
 import { useAuthClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { BrandLogo } from "@/components/brand-logo";
-import {
-  useAuthProviderSettings,
-} from "@/lib/auth-providers";
+import { useAuthProviderSettings } from "@/lib/auth-providers";
 import { privatePageMeta } from "@/lib/site-metadata";
 
 export const Route = createFileRoute("/register")({

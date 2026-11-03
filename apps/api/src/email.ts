@@ -4,10 +4,9 @@ const transport = nodemailer.createTransport({
   host: process.env.LOADCLASS_SMTP_HOST ?? "localhost",
   port: Number(process.env.LOADCLASS_SMTP_PORT ?? 1025),
   secure: Number(process.env.LOADCLASS_SMTP_PORT ?? 1025) === 465,
-  auth:
-    process.env.LOADCLASS_SMTP_USER
-      ? { user: process.env.LOADCLASS_SMTP_USER, pass: process.env.LOADCLASS_SMTP_PASS }
-      : undefined,
+  auth: process.env.LOADCLASS_SMTP_USER
+    ? { user: process.env.LOADCLASS_SMTP_USER, pass: process.env.LOADCLASS_SMTP_PASS }
+    : undefined,
 });
 
 export async function sendEmail({

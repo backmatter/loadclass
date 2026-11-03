@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve, sep } from "node:path";
@@ -38,7 +38,11 @@ Environment:
   process.exit(exitCode);
 }
 
-function parseArgs(args: string[]): { command: string; positional: string[]; flags: Record<string, string> } {
+function parseArgs(args: string[]): {
+  command: string;
+  positional: string[];
+  flags: Record<string, string>;
+} {
   const [command, ...rest] = args;
   if (!command || command === "-h" || command === "--help") usage(0);
 
@@ -124,7 +128,12 @@ function parseManifest(directory: string): ManifestInput {
 }
 
 function octal(value: number, length: number): string {
-  return value.toString(8).padStart(length - 1, "0").slice(0, length - 1) + "\0";
+  return (
+    value
+      .toString(8)
+      .padStart(length - 1, "0")
+      .slice(0, length - 1) + "\0"
+  );
 }
 
 function writeString(buffer: Buffer, offset: number, length: number, value: string): void {
@@ -215,7 +224,9 @@ async function main(): Promise<void> {
       apiKey,
       registry: normalizeRegistry(flags.registry ?? config.registry ?? "http://localhost:8080"),
     });
-    console.log(`Stored credentials for ${flags.registry ?? config.registry ?? "http://localhost:8080"}`);
+    console.log(
+      `Stored credentials for ${flags.registry ?? config.registry ?? "http://localhost:8080"}`,
+    );
     return;
   }
 
@@ -223,7 +234,10 @@ async function main(): Promise<void> {
     const [directory] = positional;
     if (!directory) throw new Error("publish requires a template directory");
     const registry = normalizeRegistry(
-      flags.registry ?? process.env.LOADCLASS_REGISTRY ?? config.registry ?? "http://localhost:8080",
+      flags.registry ??
+        process.env.LOADCLASS_REGISTRY ??
+        config.registry ??
+        "http://localhost:8080",
     );
     const apiKey = flags["api-key"] ?? process.env.LOADCLASS_API_KEY ?? config.apiKey;
     if (!apiKey) throw new Error("Missing API key. Run login or set LOADCLASS_API_KEY.");

@@ -3,7 +3,7 @@ import { DEFAULT_MAX_ARCHIVE_BYTES } from "@loadclass/registry-contract";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { describeRoute } from "hono-openapi";
-import { resolver, validator as zValidator } from "hono-openapi/zod";
+import { resolver, validator as zValidator } from "hono-openapi";
 import { z } from "zod";
 import { optionalAuth, requireAuth } from "../middleware/auth.ts";
 import {

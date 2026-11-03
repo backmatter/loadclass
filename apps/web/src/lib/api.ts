@@ -32,11 +32,7 @@ import {
 } from "@loadclass/registry-contract";
 import type { LoadclassAuthClient } from "./auth-client";
 import type { OpenAPISpec } from "./openapi-types";
-import {
-  publicAssetUrl,
-  requestApiUrl,
-  type RuntimePublicConfig,
-} from "./runtime-config";
+import { publicAssetUrl, requestApiUrl, type RuntimePublicConfig } from "./runtime-config";
 
 export const PER_PAGE = 24;
 
@@ -215,10 +211,7 @@ export function categoriesQuery(config: Pick<RuntimePublicConfig, "apiUrl">) {
   });
 }
 
-export function templateDetailQuery(
-  config: Pick<RuntimePublicConfig, "apiUrl">,
-  name: string,
-) {
+export function templateDetailQuery(config: Pick<RuntimePublicConfig, "apiUrl">, name: string) {
   return queryOptions({
     queryKey: ["templates", "detail", config.apiUrl, name],
     queryFn: () =>
@@ -316,10 +309,7 @@ export function organizationsQuery(authClient: LoadclassAuthClient) {
   });
 }
 
-export function fullOrganizationQuery(
-  authClient: LoadclassAuthClient,
-  organizationId: string,
-) {
+export function fullOrganizationQuery(authClient: LoadclassAuthClient, organizationId: string) {
   return queryOptions({
     queryKey: ["auth", "organizations", organizationId],
     queryFn: async () => {

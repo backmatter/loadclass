@@ -1,7 +1,7 @@
 import { db } from "@loadclass/db";
 import { Hono } from "hono";
 import { describeRoute } from "hono-openapi";
-import { resolver } from "hono-openapi/zod";
+import { resolver } from "hono-openapi";
 import { requireAdmin } from "../middleware/auth.ts";
 import { listAdminOrganizations, listAdminTemplates } from "../registry/template-read-model.ts";
 import { setTemplateVerification } from "../registry/template-actions.ts";

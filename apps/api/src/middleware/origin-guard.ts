@@ -45,10 +45,12 @@ export function cookieMutationOriginGuard(allowedOrigins: string[]): MiddlewareH
 }
 
 function commaSeparated(value: string | undefined) {
-  return value
-    ?.split(",")
-    .map((origin) => origin.trim())
-    .filter(Boolean) ?? [];
+  return (
+    value
+      ?.split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean) ?? []
+  );
 }
 
 function urlOrigin(value: string | undefined) {

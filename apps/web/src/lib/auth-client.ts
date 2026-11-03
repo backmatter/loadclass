@@ -14,13 +14,7 @@ export type LoadclassAuthClient = ReturnType<typeof createLoadclassAuthClient>;
 
 const AuthClientContext = createContext<LoadclassAuthClient | null>(null);
 
-export function AuthClientProvider({
-  apiUrl,
-  children,
-}: {
-  apiUrl: string;
-  children: ReactNode;
-}) {
+export function AuthClientProvider({ apiUrl, children }: { apiUrl: string; children: ReactNode }) {
   const authClient = useMemo(() => createLoadclassAuthClient(apiUrl), [apiUrl]);
 
   return createElement(AuthClientContext.Provider, { value: authClient }, children);

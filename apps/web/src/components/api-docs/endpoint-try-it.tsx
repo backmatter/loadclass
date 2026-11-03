@@ -9,10 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useSession } from "@/lib/auth-client";
 import { CopyButton } from "./copy-button";
-import {
-  buildEndpointRequest,
-  describeEndpointRequest,
-} from "./endpoint-request";
+import { buildEndpointRequest, describeEndpointRequest } from "./endpoint-request";
 
 interface Props {
   method: string;
@@ -156,7 +153,10 @@ export function EndpointTryIt({
           </Label>
           <div className="space-y-2">
             {descriptor.pathParams.map((p) => (
-              <div key={p.name} className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
+              <div
+                key={p.name}
+                className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3"
+              >
                 <span className="shrink-0 font-mono text-xs text-muted-foreground sm:w-28 sm:text-sm sm:text-foreground">
                   {p.name}
                 </span>
@@ -179,7 +179,10 @@ export function EndpointTryIt({
           </Label>
           <div className="space-y-2">
             {descriptor.queryParams.map((p) => (
-              <div key={p.name} className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
+              <div
+                key={p.name}
+                className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3"
+              >
                 <span className="shrink-0 font-mono text-xs text-muted-foreground sm:w-28 sm:text-sm sm:text-foreground">
                   {p.name}
                 </span>
@@ -206,7 +209,10 @@ export function EndpointTryIt({
           </Label>
           <div className="space-y-2">
             {descriptor.headerParams.map((p) => (
-              <div key={p.name} className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
+              <div
+                key={p.name}
+                className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3"
+              >
                 <span className="shrink-0 font-mono text-xs text-muted-foreground sm:w-28 sm:text-sm sm:text-foreground">
                   {p.name}
                 </span>

@@ -57,11 +57,13 @@ function VersionRow({
   isLocal: boolean;
 }) {
   const { downloadVersion, downloading } = useTemplateDetailWorkflowContext();
-  const { isStable, stableMutation, toggleStable, yankMutation, yank } = useTemplateVersionWorkflow({
-    templateName,
-    version,
-    tags,
-  });
+  const { isStable, stableMutation, toggleStable, yankMutation, yank } = useTemplateVersionWorkflow(
+    {
+      templateName,
+      version,
+      tags,
+    },
+  );
 
   return (
     <div className="flex flex-col gap-2 rounded-md border border-border bg-card px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-4">
