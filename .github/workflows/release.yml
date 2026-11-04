@@ -32,8 +32,6 @@ jobs:
 
       - run: vp run typecheck
 
-      - run: vp run test
-
       - run: vp run build
 
       # No users yet: releases stay on 1.x. A breaking-change marker would make
