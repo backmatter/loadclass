@@ -7,6 +7,11 @@ export default defineConfig({
     options: { typeAware: true, typeCheck: true },
   },
   fmt: {
-    ignorePatterns: ["**/routeTree.gen.ts", "pnpm-lock.yaml", "packages/db/migrations/"],
+    ignorePatterns: [
+      "**/routeTree.gen.ts",
+      "CHANGELOG.md",
+      "pnpm-lock.yaml",
+      "packages/db/migrations/",
+    ],
   },
 });
