@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Markdown from "react-markdown";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -60,6 +61,15 @@ export function TemplateDetailView({ tmpl, session, onLoginRequired }: TemplateD
                 session={session}
                 onLoginRequired={onLoginRequired}
               />
+
+              {tmpl.readme && (
+                <section aria-label="Template instructions" className="mt-6 space-y-3">
+                  <h2 className="text-sm font-semibold">Using this template</h2>
+                  <div className="prose prose-sm max-w-none break-words dark:prose-invert">
+                    <Markdown>{tmpl.readme}</Markdown>
+                  </div>
+                </section>
+              )}
 
               {tmpl.thumbnailUrl && (
                 <button

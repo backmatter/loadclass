@@ -239,7 +239,14 @@ export async function publishTemplateVersion({
       ) {
         await tx
           .update(templates)
-          .set({ thumbnailUrl: generatedThumbnailUrl })
+          .set({
+            thumbnailUrl: generatedThumbnailUrl,
+            title: manifest.title ?? existingTemplate.title,
+            readme: manifest.readme ?? existingTemplate.readme,
+            description: manifest.description,
+            license: manifest.license,
+            category: manifest.category,
+          })
           .where(eq(templates.id, existingTemplate.id));
       }
 

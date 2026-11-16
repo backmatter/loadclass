@@ -240,6 +240,18 @@ function PublishForm() {
         </div>
 
         <div className="space-y-1.5">
+          <Label htmlFor="pub-title">
+            Display title
+            {detected.has("title") && <DetectedBadge />}
+          </Label>
+          <Input
+            id="pub-title"
+            placeholder="A readable title for your template"
+            {...field("title")}
+          />
+        </div>
+
+        <div className="space-y-1.5">
           <Label htmlFor="pub-desc">
             Description
             {detected.has("description") && <DetectedBadge />}
@@ -334,6 +346,19 @@ function PublishForm() {
             className="font-mono text-xs"
             rows={5}
             {...field("files")}
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="pub-readme">
+            Instructions
+            {detected.has("readme") && <DetectedBadge />}
+          </Label>
+          <Textarea
+            id="pub-readme"
+            placeholder="Explain how to use the template. Markdown is supported."
+            rows={5}
+            {...field("readme")}
           />
         </div>
 

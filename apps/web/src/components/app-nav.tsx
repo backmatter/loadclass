@@ -57,7 +57,11 @@ export function AppNav({ activePath }: { activePath?: string }) {
                   Account
                 </Link>
               </>
-            ) : null)}
+            ) : (
+              <Link to="/login" className="text-sm text-muted-foreground hover:text-foreground">
+                Sign in
+              </Link>
+            ))}
           <Tooltip>
             <TooltipTrigger
               render={

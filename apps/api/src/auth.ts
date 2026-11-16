@@ -73,14 +73,17 @@ export const auth = betterAuth({
   baseURL: process.env.LOADCLASS_PUBLIC_API_URL,
   secret: process.env.BETTER_AUTH_SECRET,
   database: drizzleAdapter(db, { provider: "pg" }),
-  advanced: authCookieDomain
-    ? {
-        crossSubDomainCookies: {
-          enabled: true,
-          domain: authCookieDomain,
-        },
-      }
-    : undefined,
+  advanced: {
+    cookiePrefix: "loadclass",
+    ...(authCookieDomain
+      ? {
+          crossSubDomainCookies: {
+            enabled: true,
+            domain: authCookieDomain,
+          },
+        }
+      : {}),
+  },
   socialProviders,
   emailAndPassword: {
     enabled: emailPasswordEnabled,

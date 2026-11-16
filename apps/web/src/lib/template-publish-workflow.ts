@@ -7,6 +7,8 @@ import { ApiRequestError } from "./api";
 
 export interface PublishFormValues {
   name: string;
+  title: string;
+  readme: string;
   version: string;
   description: string;
   license: string;
@@ -27,6 +29,8 @@ export interface PublishFormError {
 
 export const emptyPublishFormValues: PublishFormValues = {
   name: "",
+  title: "",
+  readme: "",
   version: "",
   description: "",
   license: "MIT",
@@ -60,6 +64,8 @@ export async function detectTemplatePackageFields(file: File): Promise<Partial<P
 
   return {
     name: manifestString(manifest, "name"),
+    title: manifestString(manifest, "title"),
+    readme: manifestString(manifest, "readme"),
     version: manifestString(manifest, "version"),
     description: manifestString(manifest, "description"),
     license: manifestString(manifest, "license"),
@@ -105,6 +111,8 @@ export function buildTemplateManifest(form: PublishFormValues) {
 
   if (form.homepage.trim()) manifestSource.homepage = form.homepage.trim();
   if (form.repository.trim()) manifestSource.repository = form.repository.trim();
+  if (form.title.trim()) manifestSource.title = form.title.trim();
+  if (form.readme.trim()) manifestSource.readme = form.readme.trim();
 
   return validateTemplateManifest(manifestSource);
 }

@@ -141,7 +141,7 @@ app.get(
           cookieAuth: {
             type: "apiKey",
             in: "cookie",
-            name: "better-auth.session_token",
+            name: "loadclass.session_token",
             description: "Browser session cookie used by the loadclass web app.",
           },
         },
